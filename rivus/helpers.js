@@ -49,6 +49,5 @@ export const getElementPosition = (boundingRect, position) => {
 // 뷰포트 위치 계산
 export const getViewportPosition = (position) => {
 	const height = window.innerHeight
-	const offset = parsePositionValue(position, height)
-	return window.scrollY + offset
+	return parsePositionValue(position, height)
 }
