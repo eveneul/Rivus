@@ -43,13 +43,14 @@ export default class Rivus {
 		const scrollY = window.scrollY
 
 		// 진입
-		if (!this.entered && scrollY >= this.startScrollY) {
+		if (!this.entered && scrollY >= this.startScrollY && scrollY <= this.endScrollY) {
 			this.entered = true
 			this.el.dataset.rivusEnter = 'true'
 		}
 
 		// 이탈
-		if (scrollY < this.startScrollY || scrollY > this.endScrollY) {
+		if (this.entered && (scrollY < this.startScrollY || scrollY > this.endScrollY)) {
+			this.entered = false
 			this.el.dataset.rivusEnter = 'false'
 		}
 
