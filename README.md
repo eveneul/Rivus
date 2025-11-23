@@ -41,3 +41,26 @@ CSS로는 애니메이션을 제외한 스타일링만 선언하고, 애니메�
 CSS 애니메이션을 많이, 그리고 잘 다뤄 본 사람은 `top`, `left`보다 `transform`을, `width`, `height`보다는 `scale`이 더 성능적인 측면에서 좋다는 것은 이미 알기 때문에 애니메이션을 잘 작성한다면 CSS만으로도 성능 저하 없는 애니메이션을 만들 수 있다고 생각합니다.
 
 JS로는 `IntersectionObserver`를 작성하고, HTML로는 `data-set`을, CSS로는 애니메이션을 구현하는 방식으로 방법 2를 채택했습니다.
+
+### 저는 이렇게 만들었어요!
+
+#### HTML 구성
+
+`data-set`으로 `Rivus`를 사용할 수 있게 구성했습니다.
+
+```html
+<div
+  data-rivus
+  data-rivus-start="top bottom"
+  data-rivus-end="bottom bottom"
+  data-rivus-enter="false"
+  data-rivus-progress="0"></div>
+```
+
+`Rivus`를 사용하기 위해서는 `data-rivus`가 필수적입니다.
+
+`data-rivus-start`와 `data-rivus-end`는 기존 `GSAP`의 `ScrollTrigger`와 동일하게 사용하도록 했습니다. 첫 번째 문자는 `element` 기준, 두 번째 문자열은 `viewport` 기준으로, **만약 `top bottom`이라고 되어 있을 시 요소의 `top` 부분이 `viewport`의 `bottom` 부분에 닿을 때 Rivus가 실행됩니다.**
+
+`data-rivus-enter`는 요소가 `start`, `end` 값에 맞게 `viewport`에 들어왔을 시 `true`가 됩니다.
+
+`dara-rivus-progress`는 요소가 `start`, `end` 값에 맞게 `viewport`에 들어왔을 시 0에서부터 1까지 `progress`가 올라가거나 감소됩니다.
