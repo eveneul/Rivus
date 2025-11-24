@@ -1,6 +1,10 @@
+!['preview'](./assets/preview.gif)
+
 # Rivus
 
 라틴어로 작은 강을 뜻하는 Rivus. 애니메이션 라이브러리 GSAP의 `ScrollTrigger`를 **Vanilla Javascript로 구현**했습니다.
+
+Demo Site: https://eveneul.github.io/Rivus/
 
 ## 설계
 
@@ -20,9 +24,9 @@ ScrollTrigger.create({
 })
 ```
 
-제가 느낀 `ScrollTrigger`의 문제점은 스타일이 `inline`으로 들어가서 기존에 작성한 CSS 스타일과의 충돌이 있었고, 또 리사이즈가 발생할 때마다 제어하기 어려웠습니다.
+제가 느낀 ScrollTrigger의 문제점은 스타일이 `inline`으로 들어간다는 점입니다. 이 때문에 기존에 작성한 CSS와 충돌이 생기기도 했고, 리사이즈가 발생할 때마다 제어하기가 어려웠습니다.
 
-또, 다른 `.js`(`.ts`) 파일이나 `custom hook`으로 파일을 분리해도 복잡한 애니메이션을 구현하면 코드의 양과 길이가 길어져서 유지보수 측면에서 난이도가 있다는 것도 단점으로 생각했습니다.
+또, 다른 .js(.ts) 파일이나 커스텀 훅으로 분리해도 복잡한 애니메이션일수록 코드가 길어져 유지보수 난이도가 높아진다는 점도 아쉬웠습니다.
 
 ### 어떻게 개선해야 할까? 어떻게 만들어야 쉽게 사용할 수 있을까?
 
@@ -36,17 +40,17 @@ CSS로는 애니메이션을 제외한 스타일링만 선언하고, 애니메�
 
 #### 방법 2: JAVASCRIPT + HTML + CSS로 애니메이션 주기
 
-`javascript`보다 `css`로 애니메이션을 주는 것이 성능적으로 더 좋습니다. 무조건적으로 다 좋은 것은 아니지만 브라우저가 `layout → paint → composite` 순서대로 렌더링을 할 때, `transform`, `opacity` 같은 속성은 `layout`, `paint`를 건너뛰고 `composite` 단계만으로 처리할 수 있어서 훨씬 빠릅니다. 즉, 리플로우와 리페인드가 없고, 프레임 드랍이 적습니다. (`margin`, `width/height`, `border` 등 속성은 JS와 똑같이 성능이 무거워집니다.)
+`javascript`보다 `css`로 애니메이션을 주는 것이 성능적으로 더 좋습니다. 무조건적으로 다 좋은 것은 아니지만 브라우저가 `layout → paint → composite` 순서대로 렌더링을 할 때, `transform`, `opacity` 같은 속성은 `layout`, `paint`를 건너뛰고 `composite` 단계만으로 처리할 수 있어서 훨씬 빠릅니다. 즉, 리플로우와 리페인트가 없고, 프레임 드랍이 적습니다. (`margin`, `width/height`, `border` 등 속성은 JS와 똑같이 성능이 무거워집니다.)
 
 CSS 애니메이션을 많이, 그리고 잘 다뤄 본 사람은 `top`, `left`보다 `transform`을, `width`, `height`보다는 `scale`이 더 성능적인 측면에서 좋다는 것은 이미 알기 때문에 애니메이션을 잘 작성한다면 CSS만으로도 성능 저하 없는 애니메이션을 만들 수 있다고 생각합니다.
 
-JS로는 `IntersectionObserver`를 작성하고, HTML로는 `data-set`을, CSS로는 애니메이션을 구현하는 방식으로 방법 2를 채택했습니다.
+JS에서는 `IntersectionObserver`를, HTML에서는 `data-*` 속성을, CSS에서는 애니메이션을 담당하도록 하는 방식(방법 2)을 채택했습니다.
 
 ### 저는 이렇게 만들었어요!
 
 #### HTML 구성
 
-`data-set`으로 `Rivus`를 사용할 수 있게 구성했습니다.
+`data-*`으로 `Rivus`를 사용할 수 있게 구성했습니다.
 
 ```html
 <div data-rivus data-rivus-start="top bottom" data-rivus-end="bottom bottom" data-rivus-enter="false" data-rivus-progress="0"></div>
@@ -58,7 +62,7 @@ JS로는 `IntersectionObserver`를 작성하고, HTML로는 `data-set`을, CSS�
 
 `data-rivus-enter`는 요소가 `start`, `end` 값에 맞게 `viewport`에 들어왔을 시 `true`가 됩니다.
 
-`dara-rivus-progress`는 요소가 `start`, `end` 값에 맞게 `viewport`에 들어왔을 시 0에서부터 1까지 `progress`가 올라가거나 감소됩니다.
+`data-rivus-progress`는 요소가 `start`, `end` 값에 맞게 `viewport`에 들어왔을 시 0에서부터 1까지 `progress`가 올라가거나 감소됩니다.
 
 #### Javascript 구성 - Helper 함수
 
@@ -66,7 +70,7 @@ JS로는 `IntersectionObserver`를 작성하고, HTML로는 `data-set`을, CSS�
 
 1. `parsePosition`
 
-`data-set`으로 포지션을 `top top` 같은 문자열 (또는 `px`, `%` 단위)이 들어올 때 무엇이 element 기준인지, 또 무엇이 viewport 기준인지 처리해 줍니다.
+`data-*`으로 포지션을 `top top` 같은 문자열 (또는 `px`, `%` 단위)이 들어올 때 무엇이 element 기준인지, 또 무엇이 viewport 기준인지 처리해 줍니다.
 
 ```js
 export const parsePosition = (value) => {
@@ -128,7 +132,7 @@ export const parsePositionValue = (value, size) => {
 }
 ```
 
-스타트나 앤드값을 `top top` 또는 `20px 50%` 처럼 지정했을 시 `Number` 타입의 갑으로 반환합니다.
+스타트나 앤드값을 `top top` 또는 `20px 50%` 처럼 지정했을 시 `Number` 타입의 값으로 반환합니다.
 
 인자로는 `value`와 `size`값을 받는데, `value`는 `top`이나 `100px` 같은 `string` 타입으로 된 값을, `size`는 `element` 기준 `height`, `viewport`는 `innerHeight`를 받습니다.
 
@@ -151,9 +155,9 @@ export const getViewportPosition = (position) => {
 
 요소의 위치를 계산하는 함수와 Viewport의 위치를 계산하는 헬퍼 함수입니다.
 
-#### Javascript 구성 - IntersectionObsercer (Rivus 클래스)
+#### Javascript 구성 - IntersectionObserver (Rivus 클래스)
 
-Rivus는 스크롤 기반 애니메이션을 제어하는 클래스입니다. HTML에서 `data-rivus` 속성을 가진 요소를 감지하고, 스크롤 위치에 따라 progress를 업데이트합니다. Web API `intersectionObserver`를 활용했습니다.
+Rivus는 스크롤 기반 애니메이션을 제어하는 클래스입니다. HTML에서 `data-rivus` 속성을 가진 요소를 감지하고, 스크롤 위치에 따라 progress를 업데이트합니다. Web API `IntersectionObserver`를 활용했습니다.
 
 - 생성자 (constructor)
 
@@ -326,3 +330,41 @@ init() {
 2. `this.computedProgress()` 호출로 현재 레이아웃 상태에 맞춰 스크롤 기준점(startScrollY, endScrollY)를 다시 계산해야 하기 때문
 3. 모든 요소에 스크롤 리스너를 등록하지 않고, 뷰포트에 보이는 요소만 감지하여 성능 최적화, 뷰포트를 벗어난 요소는 이벤트 리스너 제거
 4. `passive: true`로 스크롤 성능 향상 (브라우저가 스크롤을 더 부드럽게 처리)
+
+<br />
+
+#### CSS 구성
+
+먼저, 요소가 viewport 안에 진입 시 `data-rivus-enter`가 `false`에서 `true`로 변하게 되는데,
+
+```css
+.sc-kv[data-rivus-enter='true'] h1 span {
+	transform: translateX(-50%) translateY(0);
+}
+```
+
+이렇게 감지할 수 있습니다.
+
+rivus Class에서 `progress`를 css의 변수로 설정한 이유는 `@keyframes`로 애니메이션을 제어할 수 있기 때문입니다.
+
+```css
+@keyframes imageAnimation {
+	0%,
+	30% {
+		width: 400px;
+	}
+
+	90%,
+	100% {
+		width: 100vw;
+	}
+}
+
+.sc-image .sticky-area img {
+	object-fit: cover;
+	animation: imageAnimation 1s linear forwards paused;
+	animation-delay: calc(var(--progress) * -1s);
+}
+```
+
+`animation-delay`를 `calc`로 `progress * -1s`을 하면, Gsap ScrollTrigger의 scrub 기능과 같이 작동됩니다. `@keyframes`의 퍼센트는 0~1 사이에서 변하는 `--progress`값을 따르면 됩니다.
